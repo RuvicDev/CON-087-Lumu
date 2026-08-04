@@ -1,0 +1,28 @@
+{
+  "id": "lumu",
+  "name": "Lumu",
+  "name_en": "Lumu",
+  "version": "1.0.0",
+  "description": "Detección continua de compromiso con Lumu Defender: compromisos, indicadores IOC, incidentes y evidencias",
+  "description_en": "Continuous compromise detection with Lumu Defender: compromises, IOC indicators, incidents and evidence",
+  "category": "Seguridad / Threat Intelligence",
+  "category_en": "Security / Threat Intelligence",
+  "keywords": ["lumu", "defender", "compromise", "ioc", "incident", "threat intelligence", "compromiso", "evidencias"],
+  "icon": "icon.svg",
+  "library": {"package": "ruvic-lumu-connector", "install": "pip install git+https://github.com/tu-org/conector-lumu.git#subdirectory=lib", "import_name": "ruvic_lumu_connector"},
+  "auth_modes": [{"id": "api_key", "label": "Lumu Defender API Key", "fields": [
+    {"key": "api_key", "label": "Defender API Key", "type": "password", "secret": true, "required": true},
+    {"key": "base_url", "label": "Base URL", "type": "text", "required": false, "default": "https://defender.lumu.io/api"},
+    {"key": "verify_ssl", "label": "Verificar SSL", "type": "boolean", "required": false, "default": "true"},
+    {"key": "timeout", "label": "Timeout (segundos)", "type": "number", "required": false, "default": "20"},
+    {"key": "max_results", "label": "Máximo de resultados", "type": "number", "required": false, "default": "100"},
+    {"key": "incidents_path", "label": "Path incidentes", "type": "text", "required": false, "default": "/incidents/all"},
+    {"key": "compromises_path", "label": "Path compromisos", "type": "text", "required": false, "default": "/incidents/open"},
+    {"key": "iocs_path", "label": "Path IOCs", "type": "text", "required": false, "default": "/adversarial-activity"},
+    {"key": "evidence_path_template", "label": "Path evidencias", "type": "text", "required": false, "default": "/incidents/{incident_id}/context"}
+  ]}],
+  "env_prefix": "RUVIC_LUMU_",
+  "operations": ["security.get_compromises", "security.get_iocs", "security.get_incidents", "security.get_evidence"],
+  "test_connection": true,
+  "docs": {"skill": "SKILL.md", "permissions_note": "La API key de Lumu Defender requiere permisos de lectura sobre incidentes, adversarial activity/IOCs y contexto/evidencias de incidentes."}
+}
