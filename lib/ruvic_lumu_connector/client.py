@@ -87,7 +87,8 @@ class LumuClient:
             data = [data]
         if not isinstance(data, list):
             raise LumuDataError("La respuesta Lumu no tiene formato esperado de lista/dict.")
-        resolved_limit = max(1, min(int(limit or self.config.max_results), self.config.max_results))
+        effective_limit = self.config.max_results if limit is None else int(limit)
+        resolved_limit = max(1, min(effective_limit, self.config.max_results))
         return [dict(item) if isinstance(item, dict) else {"value": item} for item in data[:resolved_limit]]
 
     def _date_payload(self, from_date: str | None, to_date: str | None) -> dict[str, str]:
@@ -138,7 +139,8 @@ class LumuClient:
             [{'id': '...', 'status': 'open'}]
         """
         self._validate_filters(statuses, adversary_types)
-        resolved_limit = max(1, min(int(limit or self.config.max_results), 100))
+        effective_limit = self.config.max_results if limit is None else int(limit)
+        resolved_limit = max(1, min(effective_limit, self.config.max_results))
         payload = self._date_payload(from_date, to_date)
         if statuses:
             payload["status"] = list(statuses)
@@ -162,7 +164,8 @@ class LumuClient:
             [{'id': '...', 'adversaryType': 'Malware'}]
         """
         self._validate_filters(None, adversary_types)
-        resolved_limit = max(1, min(int(limit or self.config.max_results), 100))
+        effective_limit = self.config.max_results if limit is None else int(limit)
+        resolved_limit = max(1, min(effective_limit, self.config.max_results))
         payload: dict[str, Any] = {}
         if adversary_types:
             payload["adversary-types"] = list(adversary_types)
@@ -187,7 +190,8 @@ class LumuClient:
         """
         self._validate_filters(None, adversary_types)
         days = max(1, min(int(days), 30))
-        resolved_limit = max(1, min(int(limit or self.config.max_results), self.config.max_results))
+        effective_limit = self.config.max_results if limit is None else int(limit)
+        resolved_limit = max(1, min(effective_limit, self.config.max_results))
         payload: dict[str, Any] = {"days": days}
         if ioc_types:
             payload["ioc_types"] = list(ioc_types)
@@ -211,8 +215,8 @@ class LumuClient:
             >>> client.get_evidence("incident-uuid")
             [{'endpoint': '10.0.0.5', 'contact': 'malicious.example'}]
         """
-        if not incident_id or not incident_id.strip():
-            raise LumuDataError("incident_id no puede estar vacío.")
+        if not isinstance(incident_id, str) or not incident_id.strip():
+            raise LumuDataError(f"incident_id debe ser un texto no vacío, recibido: {incident_id!r}.")
         path = self.config.evidence_path_template.format(incident_id=incident_id)
         data = self._request("GET", path, params={"hash": hash_type} if hash_type else None)
         rows = self._extract_items(data, limit)
